@@ -1,0 +1,256 @@
+import java.util.*;
+/**
+ *  This class is the main class of the "World of Zuul" application. 
+ *  "World of Zuul" is a very simple, text based adventure game.  Users 
+ *  can walk around some scenery. That's all. It should really be extended 
+ *  to make it more interesting!
+ * 
+ *  To play this game, create an instance of this class and call the "play"
+ *  method.
+ * 
+ *  This main class creates and initialises all the others: it creates all
+ *  rooms, creates the parser and starts the game.  It also evaluates and
+ *  executes the commands that the parser returns.
+ * 
+ * @author  Michael Kölling and David J. Barnes
+ * @version 2016.02.29
+ */
+
+public class Game 
+{
+    private Parser parser;
+    private Room currentRoom;
+    private Player m_Player;
+        
+    /**
+     * Create the game and initialise its internal map.
+     */
+    public Game() 
+    {
+        createRooms();
+        parser = new Parser();
+        m_Player = new Player();
+    }
+
+    /**
+     * Create all the rooms and link their exits together.
+     */
+    private void createRooms()
+    {        
+        Room spongebobHouse, squidwardHouse, patrickHouse, krustyKrab, chumBucket;
+      
+        // create the rooms
+        spongebobHouse = new Room("inside the smart, funny, and amazing Spongebob Squarepants' humble abode! ");
+        squidwardHouse = new Room("in the very sarcastic Squidward Q. Tentacals home!");
+        patrickHouse = new Room("in the witty, humerous, slightly insane Patricks Star's rock home!");
+        krustyKrab = new Room("in the Krusty Krab: known for the extremely famous Krabby Patty!");
+        chumBucket = new Room("in the Chum Bucket: the famously unsuccessful fast food restaurant.");
+        
+        // initialise room exits
+        spongebobHouse.setExit("west", chumBucket);
+        spongebobHouse.setExit("north", patrickHouse);
+        
+        squidwardHouse.setExit("west", patrickHouse);
+         
+        patrickHouse.setExit("east", squidwardHouse);
+        patrickHouse.setExit("west", krustyKrab);
+        patrickHouse.setExit("south", spongebobHouse);
+
+        krustyKrab.setExit("east", patrickHouse);
+        krustyKrab.setExit("south", chumBucket);
+
+        chumBucket.setExit("east", spongebobHouse);
+        chumBucket.setExit("north", krustyKrab);
+
+        currentRoom = krustyKrab;  // start game outside
+    }
+
+    /**
+     *  Main play routine.  Loops until end of play.
+     */
+    public void play() 
+    {    
+        printWelcome();
+
+        // Enter the main command loop.  Here we repeatedly read commands and
+        // execute them until the game is over.
+                
+        boolean finished = false;
+        while (! finished) {
+            Command command = parser.getCommand();
+            finished = processCommand(command);
+        }
+        System.out.println("Thank you for spending time in Bikini Bottom.  Good bye.");
+    }
+
+    /**
+     * Print out the opening message for the player.
+     */
+    private void printWelcome()
+    {  
+        System.out.println();
+        System.out.println("Welcome to Bikini Bottom!");
+        System.out.println("Bikini Bottom is a super fun and amazing place where dreams come true! Along the way, you will come across new and exciting places. ");
+        System.out.println("Be sure to look around each room and collect items! ");
+        System.out.println("To win, you must collect enough items to have a weight of 7!");
+        System.out.println("Type 'help' if you need help, and type 'quit' to exit the game.");
+        System.out.println();
+        System.out.println(currentRoom.getLongDescription());
+    }
+
+    /**
+     * Given a command, process (that is: execute) the command.
+     * @param command The command to be processed.
+     * @return true If the command ends the game, false otherwise.
+     */
+    private boolean processCommand(Command command) 
+    {          
+        boolean wantToQuit = false;
+
+        if(command.isUnknown()) {
+            System.out.println("I don't know what you mean...");
+            return false;
+        }
+
+        String commandWord = command.getCommandWord();
+        if (commandWord.equals("help")) {
+            printHelp();
+        }
+        else if (commandWord.equals("go")) {
+            goRoom(command);
+        }
+        else if (commandWord.equals("quit")) {
+            wantToQuit = quit(command);
+        }
+        else if (commandWord.equals("look")) {
+            look(command);
+        }
+        else if (commandWord.equals("pick")) {
+            pick(command);
+        }
+        else if (commandWord.equals("drop")) {
+            drop(command);
+        }
+        // else command not recognised.
+        return wantToQuit;
+    }
+
+    // implementations of user commands:
+    /**
+     * Print out some help information.
+     * Here we print some stupid, cryptic message and a list of the 
+     * command words.
+     */
+    private void printHelp() 
+    {       
+        System.out.println("You are lost in the middle of the ocean.");
+        System.out.println();
+        System.out.println("Your command words are:");
+        parser.showCommands();
+        System.out.println();
+        System.out.println("Input example: 'go south' or 'pick jellyfish' or 'look north'");
+    }
+
+    /** 
+     * Try to in to one direction. If there is an exit, enter the new
+     * room, otherwise print an error message.
+     */
+    private void goRoom(Command command) 
+    {   
+        if(!command.hasSecondWord()) {
+            // if there is no second word, we don't know where to go...
+            System.out.println("Go where?");
+            return;
+        }
+
+        String direction = command.getSecondWord();
+
+        // Try to leave current room.
+        Room nextRoom = currentRoom.getExit(direction);
+
+        if (nextRoom == null) {
+            System.out.println("There is no door!");
+        }
+        else {
+            currentRoom = nextRoom;
+            System.out.println(currentRoom.getLongDescription());
+        }
+    }
+    
+    /** 
+     * Look in direction in room.
+     * If no item is there, do not return anything
+     */
+    private void look(Command command){ 
+               
+        //command.getCommandInfo();
+        if(!command.hasSecondWord()) {
+            // if there is no second word, we don't know where to look...
+            System.out.println("Look where?");
+            return;
+        }
+        String direction = command.getSecondWord();        
+        currentRoom.getLookItemDirection(direction);
+              
+        return; 
+    }
+    
+    /** 
+     * pick item in the direction the player is looking.
+     * remove from list in room and add to player list
+     */
+    private void pick(Command command){ 
+        
+        Item item;
+        
+        if(!command.hasSecondWord()) {
+            // if there is no second word, we don't know what to pick
+            System.out.println("Pick what?");
+            return;
+        }
+        String name = command.getSecondWord();        
+        item = currentRoom.pickItem(name);
+        
+        m_Player.pickItem(item);
+        
+        return; 
+    }
+    
+    /** 
+     * drop item in direction player is looking. 
+     * add to list in room, remove from list in player
+     */
+    private void drop(Command command){ 
+      
+        int weight;
+        
+        if(!command.hasSecondWord()) {
+            // if there is no second word, we don't know what to drop
+            System.out.println("Drop what?");
+            return;
+        }
+        String name = command.getSecondWord();
+        weight = m_Player.dropItem(name);
+        currentRoom.dropItem(name, weight);
+        
+        return; 
+    }
+    
+    /** 
+     * "Quit" was entered. Check the rest of the command to see
+     * whether we really quit the game.
+     * @return true, if this command quits the game, false otherwise.
+     */
+    private boolean quit(Command command) 
+    {
+        if(command.hasSecondWord()) {
+            System.out.println("Quit what?");
+            return false;
+        }
+        else {
+            return true;  // signal that we want to quit
+        }
+    }
+    
+    
+}
