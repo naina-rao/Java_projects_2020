@@ -1,0 +1,61 @@
+import java.util.*;
+/**
+ * This class is part of the "World of Zuul" application. 
+ * "World of Zuul" is a very simple, text based adventure game.
+ * 
+ * This is the item class. It creates item that will be placed in the rooms. 
+ * Each item has a weight and name which can be picked
+ * up or dropped at any time during the game 
+ * 
+ * @author Naina Rao
+ * @version 2021.05.11
+ */
+public class Item
+{
+    private String m_ItemName;              //stores item name
+    private int m_ItemWeight;              //stores items weight
+    private String m_ItemDirection;         //stores items direction
+    
+    public Item(String name, int weight, String direction)
+    {
+      m_ItemName = name;
+      m_ItemWeight = weight;
+      m_ItemDirection = direction;
+    }
+    
+    /**
+     * 
+     * @return The item name.
+     */
+    public String getName()
+    {
+        return m_ItemName;
+    }
+    
+    /**
+     * 
+     * @return The item weight.
+     */
+    public int getWeight()
+    {
+        return m_ItemWeight;
+    }
+    
+    /**
+     * 
+     * @return The item direction (north,south,east,or west).
+     */
+    public String getDirection()
+    {
+        return m_ItemDirection;
+    }
+    
+    /**
+     * 
+     * @return The item name and weight.
+     */
+    public String getDescription()
+    {
+        return  m_ItemName + " Weight of item: " + m_ItemWeight; 
+    }
+}
