@@ -1,0 +1,105 @@
+import java.util.*;
+/**
+ * This class is part of the "World of Zuul" application. 
+ * "World of Zuul" is a very simple, text based adventure game.
+ * 
+ * This is the player class. It creates a player with a list of items they can pick and drop.
+ * The player has the ability to pick items, drop them and move around the Bikini Bottom.
+ * To win, they are required to collect a certain amount of weight by collecting items.
+ *
+ * @Naina Rao
+ * @2021.05.14
+ */
+public class Player
+{
+    private ArrayList <Item> m_Items;
+    
+    public Player()
+    {
+        m_Items = new ArrayList<Item>();
+          
+    }
+    
+     /**
+     * Takes in an item and adds the item to the players list 
+     * and adds it to their total weight.
+     * Will print how much more weight they 
+     * need to pick up in order to win.
+     */
+    public void pickItem(Item item)
+    {        
+        if(item != null)
+        {
+            m_Items.add(item);
+            System.out.println("Item picked: " + item.getName());
+            System.out.println("To drop item, use the 'drop' command");
+            int totalWeight = getTotalWeight();
+            if(totalWeight == 7)
+            {
+                //need 7 weight to win
+                System.out.println();
+                System.out.println("You Win! Congratulations");
+                System.out.println();
+                System.out.println("Type 'quit' to exit");
+            }
+            else if(totalWeight > 7)
+            {
+                //must drop item(s) if they have a weight of more than 7
+                int overWeight = totalWeight-7;
+                System.out.println("You are over the weight limit by " + overWeight + "! Use the 'drop' command to drop items");
+            }
+            else
+            {
+                int neededWeight = 7-totalWeight;
+                System.out.println("You need " + neededWeight + " more weight to win");
+            }
+            
+        }
+        
+    }
+    
+    /**
+     * Takes in name entered by player.
+     * If it matches an item in their 
+     * arraylist, it will remove it and 
+     * remove it from their total weight
+     */
+    public int dropItem(String name)
+    {
+       int weight = 0;
+       for(int i = 0; i < m_Items.size(); i++)
+       {
+          Item item = m_Items.get(i);
+          
+          if(name.equals(item.getName()))
+          {
+            m_Items.remove(i);
+            //System.out.println("Your item was dropped!");
+            return item.getWeight();
+          }
+                 
+       }
+       return weight;
+    }
+    
+     /**
+     * When an item is added to the players arraylist,
+     * the items weight will be addded to the players total weight
+     *
+     */
+    public int getTotalWeight()
+    {
+       int totalWeight = 0;
+       
+       for(int i = 0; i < m_Items.size(); i++)
+       {
+         Item item = m_Items.get(i);
+         //add weights of items in player arraylist together 
+         totalWeight += item.getWeight();
+            
+       }
+          
+       return totalWeight;
+    }
+    
+}
